@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('/static/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 90%;
+            padding: 30px;
+            background-color: rgba(0,0,0,0.7);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #4CAF50;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .metric {
+            background-color: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .metric:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+        }
+        .metric-label {
+            font-size: 1.5em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .hostname {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 2.2em;
+            color: #4CAF50;
+        }
+        .metric-value.cat-happiness {
+            font-size: 1.2em;
+        }
+        .metric-value.coffee-pot {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        .graphs-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+        .graph {
+            width: 30%;
+            min-width: 300px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sensor Dashboard</h1>
+        <div class="hostname">Hostname: {{ values.hostname }}</div>
+        <div class="metrics-grid">
+            <div class="metric">
+                <div class="metric-label">Temperature</div>
+                <div class="metric-value">{{ values.temperature }}°C</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Power Usage</div>
+                <div class="metric-value">{{ values.power_usage }} kWh</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Solar Generation</div>
+                <div class="metric-value">{{ values.solar_generation }} kWh</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Water Usage</div>
+                <div class="metric-value">{{ values.water_usage }} L</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Air Quality</div>
+                <div class="metric-value">{{ values.air_quality }}/100</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Vibe</div>
+                <div class="metric-value">{{ values.vibe }}</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Feng Shui</div>
+                <div class="metric-value">{{ values.feng_shui }}/10</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Cat Happiness Index</div>
+                <div class="metric-value cat-happiness">{{ values.cat_happiness }}</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Coffee Pot Fullness</div>
+                <div class="metric-value coffee-pot">{{ values.coffee_pot_fullness }}</div>
+            </div>
+        </div>
+        
+        <div class="graphs-container">
+            <div class="graph">
+                <canvas id="lineChart"></canvas>
+            </div>
+            <div class="graph">
+                <canvas id="barChart"></canvas>
+            </div>
+            <div class="graph">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Line Chart
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Weekly Trend',
+                    data: {{ graph_data.line_data }},
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Weekly Trend'
+                    }
+                }
+            }
+        });
+
+        // Bar Chart
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['A', 'B', 'C', 'D', 'E'],
+                datasets: [{
+                    label: 'Category Distribution',
+                    data: {{ graph_data.bar_data }},
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)',
+                        'rgba(54, 162, 235, 0.5)',
+                        'rgba(255, 206, 86, 0.5)',
+                        'rgba(75, 192, 192, 0.5)',
+                        'rgba(153, 102, 255, 0.5)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Category Distribution'
+                    }
+                }
+            }
+        });
+
+        // Pie Chart
+        new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Red', 'Blue', 'Yellow', 'Green'],
+                datasets: [{
+                    label: 'Distribution',
+                    data: {{ graph_data.pie_data }},
+                    backgroundColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Distribution'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
